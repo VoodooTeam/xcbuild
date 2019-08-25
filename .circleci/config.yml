@@ -30,6 +30,16 @@ jobs:
       - store_artifacts:
           path: build/xcbuild
           destination: xcbuild
+      - restore_cache:
+          keys:
+            - jq
+      - run:
+          name: Install jq
+          command: if ! [ -f jq ]; then sudo curl -s -o /usr/local/bin/jq https://ci-games-launcher-public-assets.s3-eu-west-1.amazonaws.com/jq; fi
+      - save_cache:
+          key: jq
+          paths:
+            - /usr/local/bin/jq
       - run:
           name: Get artifact URL
           command: BRANCH=$(echo ${CIRCLE_BRANCH} | sed 's#/#%2F#') && ARTIFACT_URL=$(curl -s "https://circleci.com/api/v1.1/project/gh/VoodooTeam/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BUILD_NUM}/artifacts?circle-token=${CIRCLECI_TOKEN}&branch=${BRANCH}" | jq '.[0] | .url') && echo ${ARTIFACTI_URL}
