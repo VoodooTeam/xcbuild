@@ -1,0 +1,42 @@
+version: 2.1
+
+jobs:     
+  build_xcbuild:
+    working_directory: ~/xcbuild
+    macos:
+      xcode: "9.0"
+    steps:
+      - run:
+          name: Ensure we have a local ssh configuration folder
+          command: mkdir -p ${HOME}/.ssh
+      - run:
+          command: sudo echo "Host github.com" >> ${HOME}/.ssh/config
+          name: Ensuring we don't have to check ssh certificate on clone
+      - run:
+          command: sudo echo "    StrictHostKeyChecking no" >> ${HOME}/.ssh/config
+          name: Ensuring we don't have to check ssh certificate on clone
+      - run: 
+          name: Clone project
+          command: git clone --depth 1 --single-branch --branch ${CIRCLE_BRANCH} git@github.com:VoodooTeam/xcbuild.git ~/xcbuild
+      - run:
+          name: Updating submodules
+          command: git submodule update --init
+      - run:
+          name: Install dependencies
+          command: brew install cmake ninja
+      - run:
+          name: Building
+          command: make
+      - store_artifacts:
+          path: myartifacts.tar
+          destination: artifacts.tar
+      - run:
+          name: Get artifact URL
+          command: BRANCH=$(echo ${CIRCLE_BRANCH} | sed 's#/#%2F#') && ARTIFACT_URL=$(curl -s "https://circleci.com/api/v1.1/project/gh/VoodooTeam/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BUILD_NUM}/artifacts?circle-token=${CIRCLECI_TOKEN}&branch=${BRANCH}" | jq '.[0] | .url') && echo "export ARTIFACT_URL=${ARTIFACT_URL}" >> ${BASH_ENV}
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build_xcbuild
