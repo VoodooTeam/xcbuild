@@ -28,11 +28,11 @@ jobs:
           name: Building
           command: make
       - store_artifacts:
-          path: myartifacts.tar
-          destination: artifacts.tar
+          path: build/xcbuild
+          destination: xcbuild
       - run:
           name: Get artifact URL
-          command: BRANCH=$(echo ${CIRCLE_BRANCH} | sed 's#/#%2F#') && ARTIFACT_URL=$(curl -s "https://circleci.com/api/v1.1/project/gh/VoodooTeam/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BUILD_NUM}/artifacts?circle-token=${CIRCLECI_TOKEN}&branch=${BRANCH}" | jq '.[0] | .url') && echo "export ARTIFACT_URL=${ARTIFACT_URL}" >> ${BASH_ENV}
+          command: BRANCH=$(echo ${CIRCLE_BRANCH} | sed 's#/#%2F#') && ARTIFACT_URL=$(curl -s "https://circleci.com/api/v1.1/project/gh/VoodooTeam/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BUILD_NUM}/artifacts?circle-token=${CIRCLECI_TOKEN}&branch=${BRANCH}" | jq '.[0] | .url') && echo ${ARTIFACTI_URL}
 
 
 workflows:
